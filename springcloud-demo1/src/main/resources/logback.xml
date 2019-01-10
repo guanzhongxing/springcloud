@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds" debug="false">
+	<!-- trace、debug、info、warn、error -->
+	<contextName>logback</contextName>
+	<property name="app.name" value="logback_text" />
+	<property name="path" value="E:/log" />
+	<property name="pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%file:%line] - %msg%n" />
+	<property name="charsetEncoding" value="UTF-8" />
+	<!--ConsoleAppender 用于在屏幕上输出日志 -->
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<!--定义了一个过滤器,在LEVEL之下的日志输出不会被打印出来 -->
+		<!-- encoder 默认配置为PatternLayoutEncoder -->
+		<encoder>
+			<pattern>${pattern}</pattern>
+			<charset>${charsetEncoding}</charset>
+		</encoder>
+	</appender>
+
+	<!-- <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>${path}/${app.name}.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>${pattern}</pattern>
+            <charset>${charsetEncoding}</charset>
+        </encoder>
+    </appender> -->
+
+	<!--滚动文件日志-->
+	<appender name="rollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<filter class="ch.qos.logback.classic.filter.LevelFilter">
+	</filter>
+		<!-- <file>${path}/${app.name}.log</file> -->	
+		<!-- #日志文件 分隔保存的策略  基于 大小和日期的方式 分隔 -->	
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- #日志文件 输出的文件名的格式 以及归档的分隔方式 -->
+			<FileNamePattern>E:/log/logback_text_master-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+			<!-- 单个日志的最大容量 ，超出的话 会重新创建日志文件 -->
+			<maxFileSize>10MB</maxFileSize>
+			<!-- 日志的总的大小 -->
+			<totalSizeCap>1024MB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+            <pattern>${pattern}</pattern>
+            <charset>${charsetEncoding}</charset>
+        </encoder>
+	</appender>
+
+	<root level="info">
+		<appender-ref ref="console" />
+		<appender-ref ref="rollingFile" />
+		<!-- <appender-ref ref="file" /> -->
+	</root>
+
+</configuration>

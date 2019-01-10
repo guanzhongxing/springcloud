@@ -1,0 +1,16 @@
+server:
+  port: 2002
+spring:
+  application:
+    name: springcloud-demo1
+    
+#注册中心指向start 
+eureka:
+  instance:
+    instance-id: springcloud-demo1
+    appname: ${spring.application.name}
+  client:
+    service-url:
+      defaultZone: http://localhost:2001/eureka/
+      
+#注册中心指向end
