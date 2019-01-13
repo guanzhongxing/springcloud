@@ -8,3 +8,17 @@ eureka:
     fetch-registry: false
     service-url:
       default-zone: http://${eureka.instance.hostname}:${server.port}/eureka/
+test:
+  name: "guanzhongxing \n fighting"
+userTest:
+  name: guanzhongxing
+  sex: 1
+  mapTest:
+    key1: value1
+    key2: value2
+    key3: value3
+  listTest:
+    - list1
+    - list2
+    - list3
+    - list4
