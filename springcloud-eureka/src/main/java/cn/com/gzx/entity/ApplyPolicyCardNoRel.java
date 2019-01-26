@@ -13,7 +13,7 @@ public class ApplyPolicyCardNoRel {
 
     private String status;
 
-    private String CardType;
+    private String cardType;
 
     private String isGroup;
 
@@ -54,11 +54,11 @@ public class ApplyPolicyCardNoRel {
     }
 
     public String getCardType() {
-        return CardType;
+        return cardType;
     }
 
     public void setCardType(String cardType) {
-        CardType = cardType;
+        cardType = cardType;
     }
 
     public String getIsGroup() {

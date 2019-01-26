@@ -1,21 +1,27 @@
 import cn.com.gzx.SpringCloudEureka;
-import cn.com.gzx.entity.ApplyPolicyCardNoRel;
-import cn.com.gzx.entity.ApplyWillDTO;
-import cn.com.gzx.entity.BaseInfoDTO;
-import cn.com.gzx.entity.ContractDTO;
+import cn.com.gzx.entity.*;
+import com.alibaba.fastjson.JSON;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringCloudEureka.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -60,19 +66,54 @@ public class TestMongo {
 
     @Test
     public void pagedQueryTest() {
-        LookupOperation lookupOperation = LookupOperation.newLookup()
-                .from("applyPolicyCardNoRel")
-                .localField("applyPolicyNo")
-                .foreignField("applyPolicyNo")
-                .as("applyWillList");
+//        LookupOperation lookupOperation = LookupOperation.newLookup()
+//                .from("applyWillDTO")
+//                .localField("applyPolicyNo")
+//                .foreignField("applyPolicyNo")
+//                .as("applyWillList");
+//        Criteria criteria = new Criteria();
+//        criteria.and("cardNo").is("123456");
+//        criteria.and("cardType").is("01");
+//        criteria.and("isGroup").is("N");
+//        Aggregation aggregation = Aggregation.newAggregation(
+//                Aggregation.group("applyPolicyNo").count().as("applyPolicyNo"),
+//                Aggregation.match(criteria),
+//                lookupOperation,
+//                Aggregation.unwind("applyWillList"),
+//                Aggregation.project().and("applyWillList").as("applyWillDTO"),
+//                Aggregation.match(new Criteria("applyWillDTO.formatType").is("03")),
+////                Aggregation.group("applyWillDTO.applyPolicyNo,applyWillDTO.createdDate,applyWillDTO.contractDTO"),
+//                Aggregation.sort(Sort.Direction.ASC, new String[]{"applyWillDTO.createdDate"}),
+//                Aggregation.skip(0L),
+//                Aggregation.limit(10)
+//        );
+//        System.out.println("query:" + aggregation.toString());
+//        List<MgApplyWill> list = this.mongoTemplate.aggregate(aggregation, "applyPolicyCardNoRel", MgApplyWill.class).getMappedResults();
+//        System.out.println("list:" + JSON.toJSONString(list));
+        System.out.println("------------------------------------------------------------------------------");
         Criteria criteria = new Criteria();
         criteria.and("cardNo").is("123456");
         criteria.and("cardType").is("01");
         criteria.and("isGroup").is("N");
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(criteria),
-                lookupOperation
+                Aggregation.group("applyPolicyNo", "cardNo", "cardType", "isGroup")
         );
+        List<ApplyPolicyCardNoRel> applyPolicyCardNoRelList = this.mongoTemplate.aggregate(aggregation, "applyPolicyCardNoRel", ApplyPolicyCardNoRel.class).getMappedResults();
+        System.out.println("applyPolicyList:" + JSON.toJSONString(applyPolicyCardNoRelList));
+        Criteria criteria1 = new Criteria();
+        criteria1.and("formatType").is("03");
+        List<String> applyPolicyList = applyPolicyCardNoRelList.stream().map(card -> card.getApplyPolicyNo()).collect(Collectors.toList());
+        criteria1.and("applyPolicyNo").in(applyPolicyList);
+        Aggregation aggregation1 = Aggregation.newAggregation(
+                Aggregation.match(criteria1),
+                Aggregation.sort(Sort.Direction.ASC, new String[]{"createdDate"}),
+                Aggregation.skip(0L),
+                Aggregation.limit(10)
+        );
+        System.out.println("query2:" + aggregation1.toString());
+        List<ApplyWillDTO> applyWillDTOList = this.mongoTemplate.aggregate(aggregation1, "applyWillDTO", ApplyWillDTO.class).getMappedResults();
+        System.out.println("list:" + JSON.toJSONString(applyWillDTOList));
     }
 }
 
